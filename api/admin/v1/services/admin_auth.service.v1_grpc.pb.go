@@ -4,7 +4,7 @@
 // - protoc             v3.19.4
 // source: api/admin/v1/services/admin_auth.service.v1.proto
 
-package adminv1
+package adminservicev1
 
 import (
 	context "context"

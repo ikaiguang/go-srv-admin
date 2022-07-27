@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package admin.api.admin.adminservicev1;
 
-option go_package = "github.com/ikaiguang/go-srv-admin/api/admin/v1/services;adminv1";
+option go_package = "github.com/ikaiguang/go-srv-admin/api/admin/v1/services;adminservicev1";
 option java_multiple_files = true;
 option java_package = "admin.api.admin.adminservicev1";
 option java_outer_classname = "AdminApiAdminAdminServiceV1";
@@ -15,14 +15,14 @@ service SrvAdminAuth {
   // LoginByEmail Email登录
   rpc LoginByEmail(adminv1.LoginByEmailReq) returns (adminv1.LoginResp) {
     option (google.api.http) = {
-      post : "/admin/v1/login-by-email"
+      post : "/admin/v1/admin-auth/login-by-email"
       body : "*"
     };
   }
   // Ping ping pong
   rpc Ping(adminv1.PingReq) returns (adminv1.PingResp) {
     option (google.api.http) = {
-      get : "/admin/v1/ping"
+      get : "/admin/v1/admin-auth/ping"
       // body: "*"
     };
   }

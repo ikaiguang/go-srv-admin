@@ -2,7 +2,7 @@
 // versions:
 // protoc-gen-go-http v2.3.1
 
-package adminv1
+package adminservicev1
 
 import (
 	context "context"
@@ -28,8 +28,8 @@ type SrvAdminAuthHTTPServer interface {
 
 func RegisterSrvAdminAuthHTTPServer(s *http.Server, srv SrvAdminAuthHTTPServer) {
 	r := s.Route("/")
-	r.POST("/admin/v1/login-by-email", _SrvAdminAuth_LoginByEmail0_HTTP_Handler(srv))
-	r.GET("/admin/v1/ping", _SrvAdminAuth_Ping0_HTTP_Handler(srv))
+	r.POST("/admin/v1/admin-auth/login-by-email", _SrvAdminAuth_LoginByEmail0_HTTP_Handler(srv))
+	r.GET("/admin/v1/admin-auth/ping", _SrvAdminAuth_Ping0_HTTP_Handler(srv))
 }
 
 func _SrvAdminAuth_LoginByEmail0_HTTP_Handler(srv SrvAdminAuthHTTPServer) func(ctx http.Context) error {
@@ -85,7 +85,7 @@ func NewSrvAdminAuthHTTPClient(client *http.Client) SrvAdminAuthHTTPClient {
 
 func (c *SrvAdminAuthHTTPClientImpl) LoginByEmail(ctx context.Context, in *resources.LoginByEmailReq, opts ...http.CallOption) (*resources.LoginResp, error) {
 	var out resources.LoginResp
-	pattern := "/admin/v1/login-by-email"
+	pattern := "/admin/v1/admin-auth/login-by-email"
 	path := binding.EncodeURL(pattern, in, false)
 	opts = append(opts, http.Operation(OperationSrvAdminAuthLoginByEmail))
 	opts = append(opts, http.PathTemplate(pattern))
@@ -98,7 +98,7 @@ func (c *SrvAdminAuthHTTPClientImpl) LoginByEmail(ctx context.Context, in *resou
 
 func (c *SrvAdminAuthHTTPClientImpl) Ping(ctx context.Context, in *resources.PingReq, opts ...http.CallOption) (*resources.PingResp, error) {
 	var out resources.PingResp
-	pattern := "/admin/v1/ping"
+	pattern := "/admin/v1/admin-auth/ping"
 	path := binding.EncodeURL(pattern, in, true)
 	opts = append(opts, http.Operation(OperationSrvAdminAuthPing))
 	opts = append(opts, http.PathTemplate(pattern))
