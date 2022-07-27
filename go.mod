@@ -16,6 +16,10 @@ require (
 	gorm.io/gorm v1.23.8
 )
 
+replace (
+	github.com/ikaiguang/go-srv-kit v0.0.75 => /Users/kaiguang/golang/src/github.com/ikaiguang/go-srv-kit
+)
+
 require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

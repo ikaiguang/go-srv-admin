@@ -2,7 +2,7 @@
 data:
   # mysql MySQL
   mysql:
-    dsn: root:Mysql.123456@tcp(127.0.0.1:3306)/test?charset=utf8mb4&timeout=30s&parseTime=True&loc=Local
+    dsn: root:Mysql.123456@tcp(127.0.0.1:3306)/srv_admin?charset=utf8mb4&timeout=30s&parseTime=True&loc=Local
     # slow_threshold 慢查询时间
     slow_threshold: 0.1s
     logger_enable: true
@@ -36,7 +36,7 @@ data:
     conn_max_idle_time: 600s
   # psql postgres
   psql:
-    dsn: "host=127.0.0.1 user=postgres password=Postgres.123456 dbname=test port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+    dsn: "host=127.0.0.1 user=postgres password=Postgres.123456 dbname=srv_admin port=5432 sslmode=disable TimeZone=Asia/Shanghai"
     # slow_threshold 慢查询时间
     slow_threshold: 0.1s
     logger_enable: true
