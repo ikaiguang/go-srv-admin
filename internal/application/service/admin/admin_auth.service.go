@@ -2,10 +2,15 @@ package adminsrv
 
 import (
 	"context"
-	baseerror "github.com/ikaiguang/go-srv-kit/api/base/error"
+	"github.com/golang-jwt/jwt/v4"
+	authv1 "github.com/ikaiguang/go-srv-kit/api/auth/v1"
 	confv1 "github.com/ikaiguang/go-srv-kit/api/conf/v1"
+	errorv1 "github.com/ikaiguang/go-srv-kit/api/error/v1"
 	errorutil "github.com/ikaiguang/go-srv-kit/error"
 	passwordutil "github.com/ikaiguang/go-srv-kit/kit/password"
+	authutil "github.com/ikaiguang/go-srv-kit/kratos/auth"
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"time"
 
 	adminerrorv1 "github.com/ikaiguang/go-srv-admin/api/admin/v1/errors"
 	resources "github.com/ikaiguang/go-srv-admin/api/admin/v1/resources"
@@ -43,7 +48,7 @@ func (s *adminAuth) LoginByEmail(ctx context.Context, in *resources.LoginByEmail
 	// 注册邮箱
 	regEmailModel, isNotFound, err := s.adminRegEmailRepo.QueryOneByAdminEmail(ctx, in.Email)
 	if err != nil {
-		reason := baseerror.ERROR_STATUS_INTERNAL_SERVER.String()
+		reason := errorv1.ERROR_INTERNAL_SERVER.String()
 		message := "服务内部错误"
 		err = errorutil.InternalServer(reason, message, err)
 		return out, err
@@ -58,7 +63,7 @@ func (s *adminAuth) LoginByEmail(ctx context.Context, in *resources.LoginByEmail
 	// admin
 	adminModel, isNotFound, err := s.adminRepo.QueryOneByAdminUuid(ctx, regEmailModel.AdminUuid)
 	if err != nil {
-		reason := baseerror.ERROR_STATUS_INTERNAL_SERVER.String()
+		reason := errorv1.ERROR_INTERNAL_SERVER.String()
 		message := "服务内部错误"
 		err = errorutil.InternalServer(reason, message, err)
 		return out, err
@@ -81,14 +86,18 @@ func (s *adminAuth) LoginByEmail(ctx context.Context, in *resources.LoginByEmail
 	}
 
 	// generate token
-	//claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwtpkg.Claims{
-	//	RegisteredClaims: jwt.RegisteredClaims{
-	//		ExpiresAt: jwtpkg.GenExpireTime(),
-	//	},
-	//	AuthId:   adminModel.Id,
-	//	AuthUuid: adminModel.AdminUuid,
-	//})
-	//signedString, err := claims.SignedString([]byte(s.authConfig.AdminKey))
+	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, authutil.Claims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: authutil.DefaultExpireTime(),
+		},
+		Payload: &authv1.Payload{
+			Uid: adminModel.AdminUuid,
+			P:   authv1.PlatformEnum_WEB,
+			L:   authv1.LimitTypeEnum_ONLY_ONE,
+			T:   timestamppb.New(time.Now()),
+		},
+	})
+	signedString, err := claims.SignedString([]byte(s.authConfig.AdminKey))
 	out = &resources.LoginResp{
 		AdminInfo: &resources.Info{
 			Id:            adminModel.Id,
@@ -97,7 +106,7 @@ func (s *adminAuth) LoginByEmail(ctx context.Context, in *resources.LoginByEmail
 			AdminGender:   assemblers.ToAdminGenderEnum(adminModel.AdminGender),
 			AdminStatus:   assemblers.ToAdminStatusEnum(adminModel.AdminStatus),
 		},
-		//Token: signedString,
+		Token: signedString,
 	}
 	return out, err
 }

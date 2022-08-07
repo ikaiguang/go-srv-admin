@@ -1,4 +1,4 @@
-package dbupgrade
+package dbmigrate
 
 import (
 	migrationuitl "github.com/ikaiguang/go-srv-kit/data/migration"

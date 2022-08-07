@@ -69,9 +69,9 @@ func New(opts ...Option) (engineHandler Engine, err error) {
 	}
 
 	// mysql gorm 数据库
-	//if _, err = setupHandler.GetMySQLGormDB(); err != nil {
-	//	return engineHandler, err
-	//}
+	if _, err = setupHandler.GetMySQLGormDB(); err != nil {
+		return engineHandler, err
+	}
 
 	// postgres gorm 数据库
 	//if _, err = setupHandler.GetPostgresGormDB(); err != nil {

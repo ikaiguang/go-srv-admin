@@ -1,4 +1,4 @@
-package dbupgrade
+package dbmigrate
 
 // options ...
 type options struct {

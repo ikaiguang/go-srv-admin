@@ -1,52 +1,34 @@
-package testdatasrv
+package websocketroute
 
 import (
 	"context"
-	errorv1 "github.com/ikaiguang/go-srv-kit/api/error/v1"
-
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/rs/xid"
+	"github.com/gorilla/mux"
+	stdlog "log"
+	stdhttp "net/http"
 
-	v1 "github.com/ikaiguang/go-srv-kit/api/testdata/v1"
+	errorv1 "github.com/ikaiguang/go-srv-kit/api/error/v1"
 	errorutil "github.com/ikaiguang/go-srv-kit/error"
-	contextutil "github.com/ikaiguang/go-srv-kit/kratos/context"
 	websocketutil "github.com/ikaiguang/go-srv-kit/kratos/websocket"
 )
 
-// testdata .
-type testdata struct {
-	v1.UnimplementedSrvTestdataServer
+// RegisterRoutes 注册路由
+// ref https://github.com/go-kratos/examples/blob/main/ws/main.go
+func RegisterRoutes(hs *http.Server, gs *grpc.Server, logger log.Logger) (err error) {
+	wsHandler := NewWebsocketService(logger)
+	router := mux.NewRouter()
+	router.HandleFunc("/ws/v1/websocket", wsHandler.TestWebsocket)
 
+	stdlog.Println("|*** 注册路由：websocket")
+	hs.Handle("/ws/v1/websocket", router)
+	return err
+}
+
+// ws ...
+type ws struct {
 	log *log.Helper
-}
-
-// NewTestdataService .
-func NewTestdataService(logger log.Logger) v1.SrvTestdataServer {
-	return &testdata{
-		log: log.NewHelper(logger),
-	}
-}
-
-// Websocket websocket
-func (s *testdata) Websocket(ctx context.Context, in *v1.TestReq) (resp *v1.TestResp, err error) {
-	//err = errorutil.NotImplemented(errorv1.ERROR_NOT_IMPLEMENTED.String(), "未实现")
-	//return &v1.TestResp{}, err
-
-	// http
-	httpContext, isHTTPContext := contextutil.MatchHTTPContext(ctx)
-	if isHTTPContext {
-		//return s.exportApp(httpContext, req)
-		s.ws(httpContext, in)
-		resp = &v1.TestResp{
-			Message: xid.New().String(),
-		}
-		err = errorutil.NotImplemented(errorv1.ERROR_NOT_IMPLEMENTED.String(), "未实现")
-		return resp, err
-	}
-
-	err = errorutil.NotImplemented(errorv1.ERROR_NOT_IMPLEMENTED.String(), "未实现")
-	return &v1.TestResp{}, err
 }
 
 // WsMessage ws
@@ -55,18 +37,31 @@ type WsMessage struct {
 	Content []byte
 }
 
-// ws ws
-func (s *testdata) ws(ctx http.Context, in *v1.TestReq) {
+// NewWebsocketService ...
+func NewWebsocketService(logger log.Logger) *ws {
+	return &ws{
+		log: log.NewHelper(logger),
+	}
+}
+
+// TestWebsocket ...
+func (s *ws) TestWebsocket(w http.ResponseWriter, r *http.Request) {
+	if r.Method != stdhttp.MethodGet {
+		err := errorutil.InternalServer(errorv1.ERROR_METHOD_NOT_ALLOWED.String(), "ERROR_METHOD_NOT_ALLOWED")
+		s.log.Error(err)
+		return
+	}
 	// 升级连接
-	c, err := websocketutil.UpgradeConn(ctx.Response(), ctx.Request(), ctx.Response().Header())
+	c, err := websocketutil.UpgradeConn(w, r, w.Header())
 	if err != nil {
-		err = errorutil.InternalServer(errorv1.ERROR_INTERNAL_SERVER.String(), "ws开启失败", err)
+		err = errorutil.InternalServer(errorv1.ERROR_INTERNAL_SERVER.String(), "ws: upgrade conn failed", err)
 		s.log.Error(err)
 		return
 	}
 	defer func() { _ = c.Close() }()
 
 	// 读消息
+	ctx := context.Background()
 	for {
 		messageType, messageBytes, wsErr := c.ReadMessage()
 		if wsErr != nil {
@@ -114,7 +109,7 @@ func (s *testdata) ws(ctx http.Context, in *v1.TestReq) {
 }
 
 // processWsMessage 处理ws-message
-func (s *testdata) processWsMessage(ctx context.Context, wsMessage *WsMessage) (needCloseConn bool, err error) {
+func (s *ws) processWsMessage(ctx context.Context, wsMessage *WsMessage) (needCloseConn bool, err error) {
 	s.log.Infow("ws-message type", wsMessage.Type)
 	s.log.Infow("ws-message message", string(wsMessage.Content))
 	if string(wsMessage.Content) == "close" {

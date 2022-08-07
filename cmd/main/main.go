@@ -9,10 +9,78 @@ import (
 
 	debugutil "github.com/ikaiguang/go-srv-kit/debug"
 
+	dbmigrate "github.com/ikaiguang/go-srv-admin/cmd/migration/migrate"
 	routes "github.com/ikaiguang/go-srv-admin/internal/route"
 	servers "github.com/ikaiguang/go-srv-admin/internal/server"
 	"github.com/ikaiguang/go-srv-admin/internal/setup"
 )
+
+// go run ./example/cmd/main/... -conf=./example/configs
+func main() {
+	var err error
+
+	// 初始化
+	err = setup.Init()
+	if err != nil {
+		stdlog.Fatalf("%+v\n", err)
+		return
+	}
+	//defer func() { _ = setup.Close() }()
+
+	// 引擎模块
+	engineHandler, err := setup.GetEngine()
+	if err != nil {
+		stdlog.Fatalf("%+v\n", err)
+		return
+	}
+	// 关闭
+	defer func() { _ = setup.Close() }()
+
+	// loadingAppSettingEnv 加载程序配置
+	if err = loadingAppSettingEnv(engineHandler); err != nil {
+		stdlog.Fatalf("%+v\n", err)
+		return
+	}
+
+	// 启动程序
+	stdlog.Println()
+	stdlog.Println("|==================== 加载程序 开始 ====================|")
+
+	// 启动
+	app, err := newApp(engineHandler)
+	stdlog.Println("|==================== 加载程序 结束 ====================|")
+	if err := app.Run(); err != nil {
+		debugutil.Fatalf("%+v\n", err)
+		return
+	}
+}
+
+// loadingAppSettingEnv 加载计划任务
+func loadingAppSettingEnv(engineHandler setup.Engine) error {
+	// 计划任务
+	settingConfig := engineHandler.AppSettingConfig()
+	stdlog.Println()
+	stdlog.Println("|==================== 加载计划任务 开始 ====================|")
+
+	// 数据库迁移
+	if settingConfig != nil && settingConfig.EnableMigrateDb {
+		stdlog.Printf("|*** 加载程序计划任务：数据库迁移")
+		dbmigrate.Run()
+	}
+	// 定时任务
+	//if scheduleConfig != nil && scheduleConfig.EnableScheduleCron {
+	//	stdlog.Printf("|*** 加载程序计划任务：定时任务")
+	//	cronHandler, err := crons.InitCron()
+	//	if err != nil {
+	//		debugutil.Fatalf("%+v\n", err)
+	//		return
+	//	}
+	//	cronHandler.Start()
+	//	defer cronHandler.Stop()
+	//}
+	stdlog.Println("|==================== 加载计划任务 结束 ====================|")
+	return nil
+}
 
 // newApp .
 func newApp(engineHandler setup.Engine) (app *kratos.App, err error) {
@@ -28,7 +96,7 @@ func newApp(engineHandler setup.Engine) (app *kratos.App, err error) {
 	//errorutil.DefaultStackTracerDepth += 2
 
 	// 加载程序运行环境
-	err = LoadingAppEnv(engineHandler)
+	err = loadingAppDependentEnv(engineHandler)
 	if err != nil {
 		return app, err
 	}
@@ -62,42 +130,8 @@ func newApp(engineHandler setup.Engine) (app *kratos.App, err error) {
 	return app, err
 }
 
-// LoadingAppEnv 加载程序运行环境
-func LoadingAppEnv(engineHandler setup.Engine) error {
+// loadingAppDependentEnv 加载程序运行环境
+func loadingAppDependentEnv(engineHandler setup.Engine) error {
 	//stdlog.Printf("|*** 加载程序运行环境：XXX")
 	return nil
-}
-
-// go run ./example/cmd/main/... -conf=./example/configs
-func main() {
-	var err error
-
-	// 初始化
-	err = setup.Init()
-	if err != nil {
-		stdlog.Fatalf("%+v\n", err)
-		return
-	}
-	//defer func() { _ = setup.Close() }()
-
-	// 引擎模块
-	engineHandler, err := setup.GetEngine()
-	if err != nil {
-		stdlog.Fatalf("%+v\n", err)
-		return
-	}
-	// 关闭
-	defer func() { _ = setup.Close() }()
-
-	// 启动程序
-	stdlog.Println()
-	stdlog.Println("|==================== 加载程序 开始 ====================|")
-
-	// 启动
-	app, err := newApp(engineHandler)
-	stdlog.Println("|==================== 加载程序 结束 ====================|")
-	if err := app.Run(); err != nil {
-		debugutil.Fatalf("%+v\n", err)
-		return
-	}
 }
