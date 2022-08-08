@@ -4,11 +4,12 @@ import (
 	"context"
 	"github.com/golang-jwt/jwt/v4"
 	authv1 "github.com/ikaiguang/go-srv-kit/api/auth/v1"
-	confv1 "github.com/ikaiguang/go-srv-kit/api/conf/v1"
 	errorv1 "github.com/ikaiguang/go-srv-kit/api/error/v1"
 	errorutil "github.com/ikaiguang/go-srv-kit/error"
 	passwordutil "github.com/ikaiguang/go-srv-kit/kit/password"
 	authutil "github.com/ikaiguang/go-srv-kit/kratos/auth"
+	tokenutil "github.com/ikaiguang/go-srv-kit/kratos/token"
+	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
 
@@ -23,7 +24,7 @@ import (
 type adminAuth struct {
 	adminservicev1.UnimplementedSrvAdminAuthServer
 
-	authConfig *confv1.App_Auth
+	authTokenRepo tokenutil.AuthTokenRepo
 
 	adminRepo         repos.AdminRepo
 	adminRegEmailRepo repos.AdminRegEmailRepo
@@ -31,13 +32,12 @@ type adminAuth struct {
 
 // NewAdminAuthService ...
 func NewAdminAuthService(
-	authConfig *confv1.App_Auth,
+	authTokenRepo tokenutil.AuthTokenRepo,
 	adminRepo repos.AdminRepo,
 	adminRegEmailRepo repos.AdminRegEmailRepo,
 ) adminservicev1.SrvAdminAuthServer {
 	return &adminAuth{
-		authConfig: authConfig,
-
+		authTokenRepo:     authTokenRepo,
 		adminRepo:         adminRepo,
 		adminRegEmailRepo: adminRegEmailRepo,
 	}
@@ -85,28 +85,66 @@ func (s *adminAuth) LoginByEmail(ctx context.Context, in *resources.LoginByEmail
 		return out, err
 	}
 
-	// generate token
-	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, authutil.Claims{
+	// 管理员信息
+	adminInfo := &resources.Info{
+		Id:            adminModel.Id,
+		AdminNickname: adminModel.AdminNickname,
+		AdminAvatar:   adminModel.AdminAvatar,
+		AdminGender:   assemblers.ToAdminGenderEnum(adminModel.AdminGender),
+		AdminStatus:   assemblers.ToAdminStatusEnum(adminModel.AdminStatus),
+	}
+	anyData, err := anypb.New(adminInfo)
+	if err != nil {
+		reason := errorv1.ERROR_INTERNAL_SERVER.String()
+		message := "服务内部错误"
+		err = errorutil.InternalServer(reason, message, err)
+		return out, err
+	}
+
+	// token claims
+	authClaims := &authutil.Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: authutil.DefaultExpireTime(),
 		},
 		Payload: &authv1.Payload{
 			Uid: adminModel.AdminUuid,
-			P:   authv1.PlatformEnum_WEB,
-			L:   authv1.LimitTypeEnum_ONLY_ONE,
-			T:   timestamppb.New(time.Now()),
+			Tt:  authv1.TokenTypeEnum_ADMIN,
+			Lp:  authv1.PlatformEnum_WEB,
+			Lt:  authv1.LimitTypeEnum_ONLY_ONE,
+			St:  timestamppb.New(time.Now()),
 		},
-	})
-	signedString, err := claims.SignedString([]byte(s.authConfig.AdminKey))
+	}
+
+	// 密码
+	signingSecret := s.authTokenRepo.SigningSecret(ctx, authClaims, adminModel.PasswordHash)
+	authCache := &authv1.Auth{
+		Data:    anyData,
+		Payload: authClaims.Payload,
+		Secret:  signingSecret,
+	}
+
+	// 存储缓存
+	err = s.authTokenRepo.SaveCacheData(ctx, authClaims, authCache)
+	if err != nil {
+		reason := errorv1.ERROR_INTERNAL_SERVER.String()
+		message := "服务内部错误"
+		err = errorutil.InternalServer(reason, message, err)
+		return out, err
+	}
+
+	// generate token
+	signedString, err := s.authTokenRepo.SignedToken(authClaims, authCache.Secret)
+	if err != nil {
+		reason := errorv1.ERROR_INTERNAL_SERVER.String()
+		message := "服务内部错误"
+		err = errorutil.InternalServer(reason, message, err)
+		return out, err
+	}
+
+	// 响应
 	out = &resources.LoginResp{
-		AdminInfo: &resources.Info{
-			Id:            adminModel.Id,
-			AdminNickname: adminModel.AdminNickname,
-			AdminAvatar:   adminModel.AdminAvatar,
-			AdminGender:   assemblers.ToAdminGenderEnum(adminModel.AdminGender),
-			AdminStatus:   assemblers.ToAdminStatusEnum(adminModel.AdminStatus),
-		},
-		Token: signedString,
+		AdminInfo: adminInfo,
+		Token:     signedString,
 	}
 	return out, err
 }

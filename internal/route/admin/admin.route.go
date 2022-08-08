@@ -3,6 +3,7 @@ package adminroute
 import (
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
+	tokenutil "github.com/ikaiguang/go-srv-kit/kratos/token"
 	stdlog "log"
 
 	adminservicev1 "github.com/ikaiguang/go-srv-admin/api/admin/v1/services"
@@ -18,8 +19,19 @@ func RegisterRoutes(engineHandler setup.Engine, hs *http.Server, gs *grpc.Server
 	if err != nil {
 		return err
 	}
+	redisCC, err := engineHandler.GetRedisClient()
+	if err != nil {
+		return err
+	}
+
 	// 验证配置
 	authConfig := engineHandler.AppConfig().Auth
+
+	// 验证
+	authTokenRepo := tokenutil.NewRedisTokenRepo(
+		redisCC,
+		tokenutil.WithAuthConfig(authConfig),
+	)
 
 	// admin
 	adminRepo := datas.NewAdminRepo(dbConn)
@@ -27,7 +39,7 @@ func RegisterRoutes(engineHandler setup.Engine, hs *http.Server, gs *grpc.Server
 
 	// oauth 授权
 	adminAuthSrv := adminsrv.NewAdminAuthService(
-		authConfig,
+		authTokenRepo,
 		adminRepo,
 		adminRegEmailRepo,
 	)
