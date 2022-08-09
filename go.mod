@@ -9,7 +9,7 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.4.1
 	github.com/google/wire v0.5.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/ikaiguang/go-srv-kit v0.0.75
+	github.com/ikaiguang/go-srv-kit v0.0.76
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.8.0
 	google.golang.org/genproto v0.0.0-20220715211116-798f69b842b9
@@ -18,7 +18,7 @@ require (
 	gorm.io/gorm v1.23.8
 )
 
-replace github.com/ikaiguang/go-srv-kit v0.0.75 => /Users/kaiguang/golang/src/github.com/ikaiguang/go-srv-kit
+//replace github.com/ikaiguang/go-srv-kit v0.0.75 => /Users/kaiguang/golang/src/github.com/ikaiguang/go-srv-kit
 
 require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect

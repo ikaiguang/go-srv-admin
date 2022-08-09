@@ -121,6 +121,8 @@ github.com/hashicorp/go-multierror v1.1.0/go.mod h1:spPvp8C1qA32ftKqdAHm4hHTbPw+
 github.com/hpcloud/tail v1.0.0/go.mod h1:ab1qPbhIpdTxEkNHXyeSf5vhxWSCs/tWer42PpOxQnU=
 github.com/ikaiguang/go-srv-kit v0.0.75 h1:tVqXPYeErN0r1nOXXBG8Y96+ga6/KGr//+vN0xxfMqU=
 github.com/ikaiguang/go-srv-kit v0.0.75/go.mod h1:cmoLrPxBEz9b+WQX95zCkGdKM2Vjw4vdDMgv4sUZxpA=
+github.com/ikaiguang/go-srv-kit v0.0.76 h1:hzAP4evZEXe5obhSuOB0sWzsII+ZPnDASzKbtuT67j0=
+github.com/ikaiguang/go-srv-kit v0.0.76/go.mod h1:1bhvFXEsiPJGVEkjJNUk1LwRH2bY4Of3choZ0vQVpYY=
 github.com/imdario/mergo v0.3.12 h1:b6R2BslTbIEToALKP7LxUvijTsNI9TAe80pLWN2g/HU=
 github.com/imdario/mergo v0.3.12/go.mod h1:jmQim1M+e3UYxmgPu/WyfjB3N3VflVyUjjjwH0dnCYA=
 github.com/jackc/chunkreader v1.0.0/go.mod h1:RT6O25fNZIuasFJRyZ4R/Y2BbhasbmZXF9QQ7T3kePo=
