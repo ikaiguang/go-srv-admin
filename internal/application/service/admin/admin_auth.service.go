@@ -9,6 +9,7 @@ import (
 	passwordutil "github.com/ikaiguang/go-srv-kit/kit/password"
 	authutil "github.com/ikaiguang/go-srv-kit/kratos/auth"
 	tokenutil "github.com/ikaiguang/go-srv-kit/kratos/token"
+	logutil "github.com/ikaiguang/go-srv-kit/log"
 	"google.golang.org/protobuf/types/known/anypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"time"
@@ -152,11 +153,27 @@ func (s *adminAuth) LoginByEmail(ctx context.Context, in *resources.LoginByEmail
 
 // Ping ping pong
 func (s *adminAuth) Ping(ctx context.Context, in *resources.PingReq) (out *resources.PingResp, err error) {
-	//authInfo, err := authpkg.GetAdminFromContext(ctx)
-	//if err != nil {
-	//	return out, err
-	//}
-	//logutil.InfowWithContext(ctx, "authInfo", authInfo)
+	// 可以解析
+	tokenClaims, tokenClaimsOK := authutil.FromJWTContext(ctx)
+	logutil.InfowWithContext(ctx,
+		"tokenClaimsOK", tokenClaimsOK,
+		"tokenClaims", tokenClaims,
+	)
+
+	// 当：使用 authutil.Claims 时，可以解析
+	authClaims, authClaimsOK := authutil.FromAuthContext(ctx)
+	logutil.InfowWithContext(ctx,
+		"authClaimsOK", authClaimsOK,
+		"authClaims", authClaims,
+	)
+
+	// 当：使用 tokenutil.AuthTokenRepo 时，可以解析
+	authInfo, authInfoOK := authutil.FromRedisContext(ctx)
+	logutil.InfowWithContext(ctx,
+		"authInfoOK", authInfoOK,
+		"authInfo", authInfo,
+	)
+
 	out = &resources.PingResp{
 		Message: in.Message,
 	}
