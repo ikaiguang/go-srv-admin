@@ -62,6 +62,12 @@ func NewHTTPServer(engineHandler setup.Engine) (srv *http.Server, err error) {
 		middleLogger,
 		//logmiddle.WithDefaultSkip(),
 	))
+	// jwt
+	jwtMiddleware, err := NewJWTMiddleware(engineHandler)
+	if err != nil {
+		return srv, err
+	}
+	middlewareSlice = append(middlewareSlice, jwtMiddleware)
 
 	// 中间件选项
 	opts = append(opts, http.Middleware(middlewareSlice...))
