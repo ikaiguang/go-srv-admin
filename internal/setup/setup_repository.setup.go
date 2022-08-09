@@ -3,6 +3,7 @@ package setup
 import (
 	strerrors "errors"
 	"fmt"
+	tokenutil "github.com/ikaiguang/go-srv-kit/kratos/token"
 	"io"
 	"strings"
 
@@ -115,6 +116,9 @@ type Engine interface {
 	GetPostgresGormDB() (*gorm.DB, error)
 	// GetRedisClient redis 客户端
 	GetRedisClient() (*redis.Client, error)
+
+	// GetAuthTokenRepo 验证Token工具
+	GetAuthTokenRepo(redisCC *redis.Client) tokenutil.AuthTokenRepo
 
 	// Close 关闭
 	Close() error

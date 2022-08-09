@@ -88,6 +88,7 @@ func (s *adminAuth) LoginByEmail(ctx context.Context, in *resources.LoginByEmail
 	// 管理员信息
 	adminInfo := &resources.Info{
 		Id:            adminModel.Id,
+		AdminUuid:     adminModel.AdminUuid,
 		AdminNickname: adminModel.AdminNickname,
 		AdminAvatar:   adminModel.AdminAvatar,
 		AdminGender:   assemblers.ToAdminGenderEnum(adminModel.AdminGender),
@@ -116,11 +117,10 @@ func (s *adminAuth) LoginByEmail(ctx context.Context, in *resources.LoginByEmail
 	}
 
 	// 密码
-	signingSecret := s.authTokenRepo.SigningSecret(ctx, authClaims, adminModel.PasswordHash)
 	authCache := &authv1.Auth{
 		Data:    anyData,
 		Payload: authClaims.Payload,
-		Secret:  signingSecret,
+		Secret:  adminModel.PasswordHash,
 	}
 
 	// 存储缓存
@@ -133,7 +133,8 @@ func (s *adminAuth) LoginByEmail(ctx context.Context, in *resources.LoginByEmail
 	}
 
 	// generate token
-	signedString, err := s.authTokenRepo.SignedToken(authClaims, authCache.Secret)
+	signingSecret := s.authTokenRepo.SigningSecret(ctx, authClaims.Payload.Tt, adminModel.PasswordHash)
+	signedString, err := s.authTokenRepo.SignedToken(authClaims, signingSecret)
 	if err != nil {
 		reason := errorv1.ERROR_INTERNAL_SERVER.String()
 		message := "服务内部错误"

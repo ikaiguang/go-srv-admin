@@ -1,6 +1,7 @@
 package setup
 
 import (
+	tokenutil "github.com/ikaiguang/go-srv-kit/kratos/token"
 	"io"
 	"sync"
 
@@ -46,6 +47,10 @@ type engines struct {
 	// redisClientMutex redis客户端
 	redisClientMutex sync.Once
 	redisClient      *redis.Client
+
+	// authTokenRepoMutex 验证Token工具
+	authTokenRepoMutex sync.Once
+	authTokenRepo      tokenutil.AuthTokenRepo
 }
 
 // NewEngine ...

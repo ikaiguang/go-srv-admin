@@ -28,6 +28,9 @@ func NewHTTPServer(engineHandler setup.Engine) (srv *http.Server, err error) {
 
 	// options
 	var opts []http.ServerOption
+	//var opts = []http.ServerOption{
+	//	http.Filter(NewCORS()),
+	//}
 	if httpConfig.Network != "" {
 		opts = append(opts, http.Network(httpConfig.Network))
 	}

@@ -12,12 +12,11 @@ import "github.com/ikaiguang/go-srv-admin/api/admin/v1/enums/admin.enum.v1.proto
 // Info 用户信息
 message Info {
   uint64 id = 1;
-  //  string admin_mobile = 2;
-  //  string admin_email = 3;
-  string admin_nickname = 4;
-  string admin_avatar = 5;
-  adminenumv1.AdminGenderEnum.AdminGender admin_gender = 6;
-  adminenumv1.AdminStatusEnum.AdminStatus admin_status = 7;
+  string admin_uuid = 2;
+  string admin_nickname = 3;
+  string admin_avatar = 4;
+  adminenumv1.AdminGenderEnum.AdminGender admin_gender = 5;
+  adminenumv1.AdminStatusEnum.AdminStatus admin_status = 6;
 }
 
 // LoginResp 用户登录
