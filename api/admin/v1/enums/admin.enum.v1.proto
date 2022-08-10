@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package admin.api.admin.adminenumv1;
+package admin.api.adminenumv1;
 
 option go_package = "github.com/ikaiguang/go-srv-admin/api/admin/v1/enums;adminenumv1";
 option java_multiple_files = true;
-option java_package = "admin.api.admin.adminenumv1";
-option java_outer_classname = "AdminApiAdminAdminEnumV1";
+option java_package = "admin.api.adminenumv1";
+option java_outer_classname = "AdminApiAdminEnumV1";
 
 // AdminInitEnum AdminInitEnum enum
 message AdminInitEnum {

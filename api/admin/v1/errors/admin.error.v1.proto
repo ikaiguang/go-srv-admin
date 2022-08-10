@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package admin.api.admin.adminerrorv1;
+package admin.api.adminerrorv1;
 
 option go_package = "github.com/ikaiguang/go-srv-admin/api/admin/v1/errors;adminerrorv1";
 option java_multiple_files = true;
-option java_package = "admin.api.admin.adminerrorv1";
-option java_outer_classname = "AdminApiAdminAdminErrorV1";
+option java_package = "admin.api.adminerrorv1";
+option java_outer_classname = "AdminApiAdminErrorV1";
 
 // ERROR admin error
 enum ERROR {

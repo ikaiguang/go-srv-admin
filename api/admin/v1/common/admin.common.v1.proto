@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package admin.api.admin.admincommonv1;
+package admin.api.admincommonv1;
 
 option go_package = "github.com/ikaiguang/go-srv-admin/api/admin/v1/common;admincommonv1";
 option java_multiple_files = true;
-option java_package = "admin.api.admin.admincommonv1";
-option java_outer_classname = "adminApiAdminAdminCommonV1";
+option java_package = "admin.api.admincommonv1";
+option java_outer_classname = "adminApiAdminCommonV1";
 
 /**
  *

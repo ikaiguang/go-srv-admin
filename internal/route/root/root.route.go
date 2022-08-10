@@ -5,9 +5,9 @@ import (
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/gorilla/mux"
+	pingv1 "github.com/ikaiguang/go-srv-kit/api/ping/v1/resources"
 	stdlog "log"
 
-	pingv1 "github.com/ikaiguang/go-srv-kit/api/ping/v1"
 	apputil "github.com/ikaiguang/go-srv-kit/kratos/app"
 )
 

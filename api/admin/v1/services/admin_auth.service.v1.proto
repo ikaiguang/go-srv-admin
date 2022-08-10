@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package admin.api.admin.adminservicev1;
+package admin.api.adminservicev1;
 
 option go_package = "github.com/ikaiguang/go-srv-admin/api/admin/v1/services;adminservicev1";
 option java_multiple_files = true;
-option java_package = "admin.api.admin.adminservicev1";
-option java_outer_classname = "AdminApiAdminAdminServiceV1";
+option java_package = "admin.api.adminservicev1";
+option java_outer_classname = "AdminApiAdminServiceV1";
 
 import "google/api/annotations.proto";
 import "github.com/ikaiguang/go-srv-admin/api/admin/v1/resources/admin_auth.resource.v1.proto";

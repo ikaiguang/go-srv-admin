@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package admin.api.admin.adminv1;
+package admin.api.adminv1;
 
 option go_package = "github.com/ikaiguang/go-srv-admin/api/admin/v1/resources;adminv1";
 option java_multiple_files = true;
-option java_package = "user.api.admin.adminv1";
-option java_outer_classname = "AdminApiAdminAdminV1";
+option java_package = "user.api.adminv1";
+option java_outer_classname = "AdminApiAdminV1";
 
 import "github.com/ikaiguang/go-srv-admin/api/admin/v1/enums/admin.enum.v1.proto";
 
